@@ -6,12 +6,13 @@ import model.Amount;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
+import model.Employee;
 import model.Product;
 import model.Sale;
 
 public class Shop {
 
-   private Amount cash = new Amount(100.00);
+    private Amount cash = new Amount(100.00);
     private ArrayList<Product>inventory;
     private int numberProducts;
     private ArrayList<Sale>sales;
@@ -28,7 +29,20 @@ public class Shop {
     }
 
     public static void main(String[] args) {
+        ArrayList<Employee>Empleado = new ArrayList<>();
+        Scanner sc = new Scanner(System.in);
         Shop shop = new Shop();
+        
+        System.out.print("Introducir nombre del empleado: ");
+        String name = sc.nextLine();
+        System.out.print("Introducir apellido del empleado: ");
+        String surname=sc.nextLine();
+        System.out.print("Introducir DNI del empleado: ");
+        int DNI = sc.nextInt();
+        
+        Employee nuvoempleado = new Employee(name, surname, DNI);
+        Empleado.add(nuvoempleado);
+        
         // shop.loadInventory();
         int choice;
         Scanner scanner = new Scanner(System.in);
@@ -78,7 +92,7 @@ public class Shop {
             }
         } while (choice != 10);
     }
-
+    
     public void showCash() {
         System.out.println("Dinero actual: " + cash);
     }
