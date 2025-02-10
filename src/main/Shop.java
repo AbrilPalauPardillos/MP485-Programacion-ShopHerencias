@@ -273,23 +273,29 @@ public class Shop {
         return null;
     }
     
-    public void deleteProduct() { 
-        Scanner sc = new Scanner (System.in);
-        System.out.print("Nombre del producto (escriba 'c' para cancelar): ");
-        String name = sc.nextLine();
-        
-        if (name.equalsIgnoreCase("c")) {
-            System.out.println("Operación cancelada.");
-            return;
-        }
-        
-        if (productExists(name)) {
-            System.out.println("eliminando producto...");
-            inventory.remove(name);
-            System.out.println("Se ha eliminado el producto.");
-        } else {
-            System.out.println("El producto no existe ne el inventario");
-        }
-        
+    public void deleteProduct() { /*2. DELETE PRODUCT FROM INVENTORY*/
+    Scanner sc = new Scanner(System.in);
+    System.out.print("Nombre del producto (escriba 'c' para cancelar): ");
+    String name = sc.nextLine();
+    
+    if (name.equalsIgnoreCase("c")) {
+        System.out.println("Operación cancelada.");
+        return;
     }
+    
+    Product productToRemove = null;
+    for (Product product : inventory) {
+        if (product.getName().equalsIgnoreCase(name)) {
+            productToRemove = product;
+            break;
+        }
+    }
+    
+    if (productToRemove != null) {
+        inventory.remove(productToRemove);
+        System.out.println("Se ha eliminado el producto.");
+    } else {
+        System.out.println("El producto no existe en el inventario.");
+    }
+}
 }
