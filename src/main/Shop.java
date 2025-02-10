@@ -1,51 +1,59 @@
 package main;
 
-// Clase Shop
 import java.util.ArrayList;
-import model.Amount;
-import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
+import model.Amount;
+import model.Client;
 import model.Employee;
 import model.Product;
 import model.Sale;
 
 public class Shop {
 
-    private Amount cash = new Amount(100.00);
-    private ArrayList<Product>inventory;
-    private int numberProducts;
-    private ArrayList<Sale>sales;
-    private int numberSales; // Contador de ventas
-    final static double TAX_RATE = 1.04;
+    private Amount cash = new Amount(100.00); // Dinero en caja
+    private ArrayList<Product> inventory; // Lista de productos en inventario
+    private ArrayList<Sale> sales; // Lista de ventas realizadas
+    private final double TAX_RATE = 1.04; // Tasa de impuestos (4%)
 
     public Shop() {
         inventory = new ArrayList<>();
         sales = new ArrayList<>();
     }
 
-    public double getCash() {
-        return cash.getValue();
+    public static void main(String[] args) {
+        Shop shop = new Shop();
+        shop.initSession(); // Iniciar sesión antes de mostrar el menú
+        shop.showMenu(); // Mostrar el menú principal
     }
 
-    public static void main(String[] args) {
-        ArrayList<Employee>Empleado = new ArrayList<>();
-        Scanner sc = new Scanner(System.in);
-        Shop shop = new Shop();
-        
-        System.out.print("Introducir nombre del empleado: ");
-        String name = sc.nextLine();
-        System.out.print("Introducir apellido del empleado: ");
-        String surname=sc.nextLine();
-        System.out.print("Introducir DNI del empleado: ");
-        int DNI = sc.nextInt();
-        
-        Employee nuvoempleado = new Employee(name, surname, DNI);
-        Empleado.add(nuvoempleado);
-        
-        // shop.loadInventory();
-        int choice;
+    // Método para iniciar sesión
+    public void initSession() {
         Scanner scanner = new Scanner(System.in);
+        Employee employee = new Employee("test", "test", 123, 123, "test");
+
+        while (true) {
+            System.out.print("Introduce el número de empleado: ");
+            int employeeId = scanner.nextInt();
+            scanner.nextLine(); // Consumir el salto de línea
+            System.out.print("Introduce la contraseña: ");
+            String password = scanner.nextLine();
+
+            if (employee.login(employeeId, password)) {
+                System.out.println("Inicio de sesión exitoso.");
+                break;
+            } else {
+                System.out.println("Número de empleado o contraseña incorrectos. Intente de nuevo.");
+            }
+        }
+    }
+
+    // Método para mostrar el menú principal
+    public void showMenu() {
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
         do {
             System.out.println("--------------------------------------------");
             System.out.println("1. Mostrar dinero en caja");
@@ -59,32 +67,32 @@ public class Shop {
             System.out.print("Seleccione una opción: ");
             choice = scanner.nextInt();
             System.out.println("--------------------------------------------");
-            scanner.nextLine();
-            
+            scanner.nextLine(); // Consumir el salto de línea
+
             switch (choice) {
                 case 1:
-                    shop.showCash();
+                    showCash();
                     break;
                 case 2:
-                    shop.addProduct(null);
+                    addProduct();
                     break;
                 case 3:
-                    shop.showInventory();
+                    showInventory();
                     break;
                 case 4:
-                    shop.sale();
+                    sale();
                     break;
                 case 5:
-                    shop.showSales();
+                    showSales();
                     break;
                 case 6:
-                    shop.numSales();
+                    showTotalSales();
                     break;
                 case 9:
-                    shop.deleteProduct();
+                    deleteProduct();
                     break;
                 case 10:
-                    System.exit(0);
+                    System.out.println("Saliendo del programa...");
                     break;
                 default:
                     System.out.println("Opción no válida. Intente de nuevo.");
@@ -92,18 +100,14 @@ public class Shop {
             }
         } while (choice != 10);
     }
-    
+
+    // Método para mostrar el dinero en caja
     public void showCash() {
-        System.out.println("Dinero actual: " + cash);
+        System.out.println("Dinero actual en caja: " + cash);
     }
 
-    public void loadInventory() {
-        addProduct(new Product("Manzana", 10.00, true, 10));
-        addProduct(new Product("Pera", 20.00, true, 20));
-        addProduct(new Product("Fresa", 5.00, true, 20));
-    }
-
-    public void addProduct(Product product) {
+    // Método para añadir un producto al inventario
+    public void addProduct() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Nombre del producto (escriba 'c' para cancelar): ");
@@ -126,66 +130,44 @@ public class Shop {
         int stock = scanner.nextInt();
 
         // Crear y agregar el producto al inventario
-        inventory.add(new Product (name, wholesalerPrice, true, stock));
+        inventory.add(new Product(name, wholesalerPrice, true, stock));
         System.out.println("Producto añadido: " + name);
     }
 
+    // Método para verificar si un producto ya existe en el inventario
     private boolean productExists(String name) {
         for (Product product : inventory) {
-            if (product != null && product.getName().equals(name)) {
+            if (product.getName().equalsIgnoreCase(name)) {
                 return true;
             }
         }
         return false;
     }
 
+    // Método para mostrar el inventario
     public void showInventory() {
+        if (inventory.isEmpty()) {
+            System.out.println("El inventario está vacío.");
+            return;
+        }
+
         System.out.println("Contenido de la tienda:");
         for (Product product : inventory) {
-            if (product != null) {
-                System.out.println("-----------------------------------");
-                System.out.println("Producto: " + product.getName() + ", Precio público: " + product.getWholesalerPrice() + ", Stock: "+ product.getStock());
-            }else{
-                System.out.println("El inventario esta vacio.");
-            }
+            System.out.println("-----------------------------------");
+            System.out.println("Producto: " + product.getName() + ", Precio público: " + product.getPublicPrice() + ", Stock: " + product.getStock());
         }
     }
 
-    public void addStock() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Seleccione un nombre de producto: ");
-        String name = scanner.nextLine();
-        Product product = findProduct(name);
-
-        if (product != null) {
-            System.out.print("Seleccione la cantidad a añadir: ");
-            int stock = scanner.nextInt();
-            product.setStock(stock + product.getStock());
-            System.out.println("El stock del producto " + name + " ha sido actualizado a " + product.getStock());
-        } else {
-            System.out.println("Producto no encontrado.");
-        }
-    }
-
-    private void setExpired() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Seleccione un nombre de producto: ");
-        String name = scanner.nextLine();
-        Product product = findProduct(name);
-
-        if (product != null) {
-            product.setPublicPrice(new Amount(product.getPublicPrice().getValue() * 0.6));
-            System.out.println("El precio del producto " + name + " se ha actualizado a " + product.getPublicPrice());
-        }
-    }
-
+    // Método para realizar una venta
     public void sale() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("VENTA: escribir nombre cliente: ");
-        String client = scanner.nextLine();
+        String clientName = scanner.nextLine();
 
+        // Crear cliente con saldo inicial de 50.00?
+        Client client = new Client(clientName, 456, new Amount(50.00));
         Map<String, Integer> productsSold = new HashMap<>();
-        Amount totalAmount = new Amount(0.0);
+        Amount totalAmount = new Amount(0.0); // Inicializar totalAmount a 0.0
 
         while (true) {
             System.out.print("Introduce el nombre del producto (escribir 0 para terminar): ");
@@ -198,13 +180,14 @@ public class Shop {
             if (product != null && product.isAvailable()) {
                 System.out.print("Cantidad a comprar: ");
                 int quantity = scanner.nextInt();
-                scanner.nextLine();
+                scanner.nextLine(); // Consumir el salto de línea
 
                 if (quantity > product.getStock()) {
                     System.out.println("Stock insuficiente. Disponible: " + product.getStock());
                 } else {
-                    double subtotal = product.getPublicPrice().getValue() * quantity;
-                    totalAmount.setValue(totalAmount.getValue() + subtotal);
+                    // Calcular el subtotal usando el método multiply de Amount
+                    Amount subtotal = product.getPublicPrice().multiply(quantity);
+                    totalAmount = totalAmount.add(subtotal); // Sumar al total usando el método add de Amount
                     product.setStock(product.getStock() - quantity);
                     if (product.getStock() == 0) {
                         product.setAvailable(false);
@@ -217,85 +200,89 @@ public class Shop {
             }
         }
 
-        if (totalAmount.getValue() > 0) {
-            totalAmount.setValue(totalAmount.getValue() * TAX_RATE);
-            cash.setValue(cash.getValue() + totalAmount.getValue());
-            registerSale(new Sale(client, productsSold, totalAmount.getValue()));
-            System.out.println("Venta realizada. Total: " + totalAmount);
+        if (totalAmount.isGreaterThan(new Amount(0.0))) {
+            // Aplicar impuestos usando el método multiply de Amount
+            totalAmount = totalAmount.multiply(TAX_RATE);
+
+            // Verificar si el cliente puede pagar
+            if (client.pay(totalAmount)) {
+                // Añadir el total a la caja usando el método add de Amount
+                cash = cash.add(totalAmount);
+                sales.add(new Sale(client, productsSold, totalAmount));
+                System.out.println("Venta realizada. Total: " + totalAmount);
+            } else {
+                // Calcular la cantidad que el cliente debe usando el método subtract de Amount
+                Amount cantidadDebe = totalAmount.subtract(client.getBalance());
+                System.out.println("Venta realizada. El cliente debe: " + cantidadDebe);
+            }
         } else {
             System.out.println("No se realizó ninguna venta.");
         }
     }
 
-    private void registerSale(Sale sale) {
-        if (numberSales >= sales.size()) {
-            System.out.println("No se pueden registrar más ventas.");
-        } else {
-            sales.set(numberSales, sale);
-            numberSales++;
-        }
-    }
-
+    // Método para mostrar las ventas realizadas
     public void showSales() {
-        if (numberSales == 0) {
+        if (sales.isEmpty()) {
             System.out.println("No hay ventas registradas.");
             return;
         }
 
         System.out.println("Lista de ventas:");
-        System.out.println("------------------------------");
-        for (int i = 0; i < numberSales; i++) {
-            System.out.println("Venta #" + (i + 1) + ":\n" + sales.get(i));
+        for (Sale sale : sales) {
             System.out.println("------------------------------");
+            System.out.println(sale);
         }
     }
 
-    public void numSales() {
-        if (numberSales == 0) {
+    // Método para mostrar el total de ventas
+    public void showTotalSales() {
+        if (sales.isEmpty()) {
             System.out.println("No hay ventas registradas.");
             return;
         }
 
-        double totalAmount = 0;
-        for (int i = 0; i < numberSales; i++) {
-            totalAmount += sales.get(i).getAmount().getValue();
+        Amount totalAmount = new Amount(0.0);
+        for (Sale sale : sales) {
+            totalAmount = totalAmount.add(sale.getAmount());
         }
 
-        System.out.println("Total de dinero conseguido: " + new Amount(totalAmount));
+        System.out.println("Total de dinero conseguido: " + totalAmount);
     }
 
+    // Método para eliminar un producto del inventario
+    public void deleteProduct() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Nombre del producto (escriba 'c' para cancelar): ");
+        String name = scanner.nextLine();
+
+        if (name.equalsIgnoreCase("c")) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+
+        Product productToRemove = null;
+        for (Product product : inventory) {
+            if (product.getName().equalsIgnoreCase(name)) {
+                productToRemove = product;
+                break;
+            }
+        }
+
+        if (productToRemove != null) {
+            inventory.remove(productToRemove);
+            System.out.println("Se ha eliminado el producto.");
+        } else {
+            System.out.println("El producto no existe en el inventario.");
+        }
+    }
+
+    // Método para buscar un producto por nombre
     private Product findProduct(String name) {
         for (Product product : inventory) {
-            if (product != null && product.getName().equals(name)) {
+            if (product.getName().equalsIgnoreCase(name)) {
                 return product;
             }
         }
         return null;
     }
-    
-    public void deleteProduct() { /*2. DELETE PRODUCT FROM INVENTORY*/
-    Scanner sc = new Scanner(System.in);
-    System.out.print("Nombre del producto (escriba 'c' para cancelar): ");
-    String name = sc.nextLine();
-    
-    if (name.equalsIgnoreCase("c")) {
-        System.out.println("Operación cancelada.");
-        return;
-    }
-    
-    Product productToRemove = null;
-    for (Product product : inventory) {
-        if (product.getName().equalsIgnoreCase(name)) {
-            productToRemove = product;
-            break;
-        }
-    }
-    
-    if (productToRemove != null) {
-        inventory.remove(productToRemove);
-        System.out.println("Se ha eliminado el producto.");
-    } else {
-        System.out.println("El producto no existe en el inventario.");
-    }
-}
 }

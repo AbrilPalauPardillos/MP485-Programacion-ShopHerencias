@@ -1,46 +1,21 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author usuario
- */
-public class Employee {
-        private String name;
-        private String surname;
-        private int DNI;
+import main.Logable;
 
-    public Employee(String name, String surname, int DNI) {
-        this.name = name;
-        this.surname = surname;
-        this.DNI = DNI;
+public class Employee extends Person implements Logable {
+    private int employeeId;
+    private String password;
+    private static final int EMPLOYEE_ID = 123;
+    private static final String PASSWORD = "test";
+
+    public Employee(String name, String surname, int DNI, int employeeId, String password) {
+        super(name);
+        this.employeeId = employeeId;
+        this.password = password;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public boolean login(int user, String password) {
+        return user == EMPLOYEE_ID && password.equals(PASSWORD);
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public int getDNI() {
-        return DNI;
-    }
-
-    public void setDNI(int DNI) {
-        this.DNI = DNI;
-    }
-        
 }

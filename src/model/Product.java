@@ -1,7 +1,7 @@
 package model;
 
 public class Product {
-	private int id;
+    private int id;
     private String name;
     private Amount publicPrice;
     private Amount wholesalerPrice;
